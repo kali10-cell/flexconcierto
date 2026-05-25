@@ -1,0 +1,6 @@
+CREATE OR REPLACE FUNCION public.rol()
+
+
+USING (
+  (SELECT ROL FROM PUBLIC.PERFILES WHERE ID = auth.uid()) = 'adim'
+)
