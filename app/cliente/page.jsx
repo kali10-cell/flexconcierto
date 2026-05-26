@@ -6,7 +6,6 @@ import {
   HeroMedia,
   Panel,
   QRBlock,
-  images,
   products,
   rooms,
 } from "../_components/FlexUi";
@@ -19,7 +18,7 @@ export default function ClientePage() {
       title="Bienvenido, Juan"
     >
       <div className="client-layout">
-        <HeroMedia eyebrow="Proxima reserva" image={images.dashboard} title="Sala Dorada 05">
+        <HeroMedia eyebrow="Proxima reserva" title="Sala Dorada 05">
           <p>Tu mesa VIP esta confirmada para las 23:00. Puedes pedir antes de llegar.</p>
           <button className="primary-button">Pedir comida</button>
         </HeroMedia>

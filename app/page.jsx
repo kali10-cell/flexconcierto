@@ -1,14 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
-import { images, Logo, rooms } from "./_components/FlexUi";
+import { Logo, rooms } from "./_components/FlexUi";
 
 export default function AccessPage() {
   return (
     <main className="access-page">
       <section className="access-hero">
-        <Image alt="" fill priority sizes="(max-width: 1160px) 100vw, 70vw" src={images.venue} />
         <div className="access-overlay">
           <Logo />
           <p>Club, reservas, pedidos y acceso QR</p>

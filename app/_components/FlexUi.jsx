@@ -1,19 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
-import dashboardImage from "../../diseño-jhonda/a_dark_sleek_ui_dashboard_mockup_web_app_interf.png";
-import scannerImage from "../../diseño-jhonda/a_wide_dark_ui_dashboard_mockup_screenshot_deskto.png";
-import mobileImage from "../../diseño-jhonda/a_dark_ui_mockup_app_concept_image_showing_two_s.png";
-import venueImage from "../../diseño-jhonda/a_cinematic_night_exterior_scene_of_a_jazz_live_mu.png";
-
-export const images = {
-  dashboard: dashboardImage,
-  scanner: scannerImage,
-  mobile: mobileImage,
-  venue: venueImage,
-};
 
 export const navItems = {
   cliente: [
@@ -176,10 +164,9 @@ export function QRBlock({ label = "Mesa Dorada 05" }) {
   );
 }
 
-export function HeroMedia({ image, title, eyebrow, children }) {
+export function HeroMedia({ title, eyebrow, children }) {
   return (
     <section className="hero-media">
-      <Image alt="" fill priority sizes="(max-width: 1160px) 100vw, 60vw" src={image} />
       <div>
         <p>{eyebrow}</p>
         <h2>{title}</h2>

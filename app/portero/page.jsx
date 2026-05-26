@@ -1,7 +1,6 @@
 "use client";
 
-import Image from "next/image";
-import { AppFrame, DataList, Panel, QRBlock, StatGrid, images } from "../_components/FlexUi";
+import { AppFrame, DataList, Panel, QRBlock, StatGrid } from "../_components/FlexUi";
 
 const accessRows = [
   ["Maria Gonzalez", "Sala Roja privada", "23:47", "Valido"],
@@ -18,7 +17,6 @@ export default function PorteroPage() {
     >
       <div className="door-layout">
         <section className="scanner-card">
-          <Image alt="" fill priority sizes="(max-width: 1160px) 100vw, 65vw" src={images.scanner} />
           <div className="scanner-overlay">
             <QRBlock label="Entrada #FLEX-2X7B" />
             <button className="primary-button">Permitir acceso</button>
