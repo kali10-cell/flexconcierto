@@ -1,55 +1,69 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
-const roles = [
-  {
-    id: "cliente",
-    label: "Cliente",
-    summary: "Pedir comida, reservar salas y ver QR de entrada.",
+const roles = {
+  cliente: {
+    name: "Cliente",
+    subtitle: "Pide, reserva y entra con tu QR.",
+    nav: ["Inicio", "Comida", "Reservas", "QR", "Perfil"],
   },
-  {
-    id: "staff",
-    label: "Staff",
-    summary: "Ver mesas, pedidos y cambiar estados.",
+  staff: {
+    name: "Staff",
+    subtitle: "Mesas, pedidos y estados de cocina.",
+    nav: ["Panel", "Mesas", "Pedidos", "Actividad"],
   },
-  {
-    id: "portero",
-    label: "Portero",
-    summary: "Escanear QR y validar accesos a salas.",
+  portero: {
+    name: "Portero",
+    subtitle: "Escaneo rapido de accesos a salas.",
+    nav: ["Escaner", "Accesos", "Historial"],
   },
-  {
-    id: "admin",
-    label: "Admin",
-    summary: "Gestionar usuarios, productos y reportes.",
+  admin: {
+    name: "Admin",
+    subtitle: "Usuarios, productos y control operativo.",
+    nav: ["Panel", "Usuarios", "Productos", "Reportes"],
   },
+};
+
+const rooms = [
+  { name: "Sala Negra", capacity: "6 - 10", price: "250", tone: "black" },
+  { name: "Sala Roja", capacity: "6 - 12", price: "350", tone: "red" },
+  { name: "Sala Dorada", capacity: "6 - 15", price: "500", tone: "gold" },
 ];
 
-const menuItems = ["Inicio", "Pedir comida", "Reservar salas", "Mis QR", "Perfil"];
-
 const products = [
-  ["Burger FLEX", "18,00", "Mesa 05"],
-  ["Sushi Mix", "24,00", "Mesa 08"],
-  ["Mojito Gold", "12,00", "Mesa 12"],
+  { name: "Burger FLEX", category: "Comida", price: "18,00" },
+  { name: "Sushi Mix", category: "Comida", price: "24,00" },
+  { name: "Mojito Gold", category: "Bebida", price: "12,00" },
 ];
 
 const orders = [
-  ["Mesa 05", "Burger FLEX + Agua", "Pendiente", "28,00"],
-  ["Mesa 08", "Sushi Mix + Red Bull", "Preparando", "32,00"],
-  ["Mesa 12", "Nachos + Mojito", "Completado", "30,00"],
+  { table: "Mesa 05", items: "Burger FLEX + Agua", state: "Pendiente", total: "28,00" },
+  { table: "Mesa 08", items: "Sushi Mix + Red Bull", state: "Preparando", total: "32,00" },
+  { table: "Mesa 12", items: "Nachos + Mojito", state: "Completado", total: "30,00" },
 ];
 
 const users = [
-  ["Juan Perez", "cliente"],
-  ["Maria Lopez", "staff"],
-  ["Carlos Ruiz", "portero"],
+  { name: "Juan Perez", role: "cliente", status: "Activo" },
+  { name: "Maria Lopez", role: "staff", status: "Activo" },
+  { name: "Carlos Ruiz", role: "portero", status: "Invitado" },
 ];
 
 function Logo() {
   return (
-    <div className="logo" aria-label="Flex">
-      FLEX
+    <div className="brand">
+      <strong>FLEX</strong>
       <span>Own the night</span>
+    </div>
+  );
+}
+
+function QR() {
+  return (
+    <div className="qr-code" aria-label="QR de acceso">
+      {Array.from({ length: 100 }).map((_, index) => (
+        <span key={index} className={(index * 11 + 3) % 7 < 3 ? "active" : ""} />
+      ))}
     </div>
   );
 }
@@ -63,258 +77,337 @@ function Field({ label, type = "text" }) {
   );
 }
 
-function Status({ children, tone = "gold" }) {
-  return <span className={`status ${tone}`}>{children}</span>;
+function RoleButton({ id, active, onClick }) {
+  const role = roles[id];
+
+  return (
+    <button className={active ? "role-button active" : "role-button"} onClick={onClick}>
+      <strong>{role.name}</strong>
+      <span>{role.subtitle}</span>
+    </button>
+  );
 }
 
-function QrMock() {
+function AuthScreen({ selectedRole, setSelectedRole, setAuthenticated }) {
+  const [mode, setMode] = useState("login");
+
   return (
-    <div className="qr" aria-label="QR de muestra">
-      {Array.from({ length: 81 }).map((_, index) => (
-        <span key={index} className={(index * 7 + index) % 5 < 2 ? "on" : ""} />
+    <main className="auth-screen">
+      <section className="auth-visual">
+        <Logo />
+        <div>
+          <p className="eyebrow">Tres salas. Una app.</p>
+          <h1>Gestiona la noche desde una interfaz rapida y clara.</h1>
+          <p>
+            Login, reservas, pedidos, QR y administracion con el mismo lenguaje
+            visual de FLEX.
+          </p>
+        </div>
+        <div className="room-strip">
+          {rooms.map((room) => (
+            <article className={`mini-room ${room.tone}`} key={room.name}>
+              <span>{room.name}</span>
+              <strong>{room.price}€</strong>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="auth-panel">
+        <div className="segmented">
+          <button className={mode === "login" ? "active" : ""} onClick={() => setMode("login")}>
+            Login
+          </button>
+          <button className={mode === "register" ? "active" : ""} onClick={() => setMode("register")}>
+            Registro
+          </button>
+        </div>
+
+        <div className="form-card">
+          <h2>{mode === "login" ? "Iniciar sesion" : "Crear cuenta"}</h2>
+          {mode === "register" ? <Field label="Nombre completo" /> : null}
+          <Field label="Correo electronico" type="email" />
+          {mode === "register" ? <Field label="Telefono" type="tel" /> : null}
+          <Field label="Contrasena" type="password" />
+          {mode === "register" ? <Field label="Confirmar contrasena" type="password" /> : null}
+
+          <div className="role-picker">
+            {Object.keys(roles).map((roleId) => (
+              <RoleButton
+                active={selectedRole === roleId}
+                id={roleId}
+                key={roleId}
+                onClick={() => setSelectedRole(roleId)}
+              />
+            ))}
+          </div>
+
+          <button className="primary" onClick={() => setAuthenticated(true)}>
+            {mode === "login" ? "Entrar" : "Registrarme"}
+          </button>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function AppShell({ selectedRole, setSelectedRole, setAuthenticated }) {
+  const role = roles[selectedRole];
+  const [activeNav, setActiveNav] = useState(role.nav[0]);
+
+  const nav = useMemo(() => roles[selectedRole].nav, [selectedRole]);
+
+  function changeRole(roleId) {
+    setSelectedRole(roleId);
+    setActiveNav(roles[roleId].nav[0]);
+  }
+
+  return (
+    <main className="app-layout">
+      <aside className="sidebar">
+        <Logo />
+        <div className="role-switcher">
+          {Object.keys(roles).map((roleId) => (
+            <button
+              className={selectedRole === roleId ? "active" : ""}
+              key={roleId}
+              onClick={() => changeRole(roleId)}
+            >
+              {roles[roleId].name}
+            </button>
+          ))}
+        </div>
+        <nav>
+          {nav.map((item) => (
+            <button
+              className={activeNav === item ? "active" : ""}
+              key={item}
+              onClick={() => setActiveNav(item)}
+            >
+              {item}
+            </button>
+          ))}
+        </nav>
+        <button className="ghost" onClick={() => setAuthenticated(false)}>
+          Cerrar sesion
+        </button>
+      </aside>
+
+      <section className="workspace">
+        <header className="app-header">
+          <div>
+            <p className="eyebrow">{role.name}</p>
+            <h1>{activeNav}</h1>
+            <span>{role.subtitle}</span>
+          </div>
+          <div className="profile-chip">
+            <span>JP</span>
+            <strong>Juan Perez</strong>
+          </div>
+        </header>
+
+        {selectedRole === "cliente" ? <ClienteView /> : null}
+        {selectedRole === "staff" ? <StaffView /> : null}
+        {selectedRole === "portero" ? <PorteroView /> : null}
+        {selectedRole === "admin" ? <AdminView /> : null}
+      </section>
+    </main>
+  );
+}
+
+function ClienteView() {
+  return (
+    <div className="screen-grid cliente-grid">
+      <section className="hero-card">
+        <h2>Reserva tu sala</h2>
+        <p>Elige ambiente, confirma la hora y recibe tu QR de acceso.</p>
+        <div className="room-cards">
+          {rooms.map((room) => (
+            <article className={`room-card ${room.tone}`} key={room.name}>
+              <span>{room.name}</span>
+              <strong>{room.price}€</strong>
+              <small>{room.capacity} personas</small>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="panel qr-panel">
+        <h2>Tu QR</h2>
+        <QR />
+        <p>Mesa Dorada 05 · 24 Mayo · 23:00</p>
+        <span className="badge success">Entrada activa</span>
+      </section>
+
+      <section className="panel">
+        <PanelHeader title="Pedir comida" action="Ver menu" />
+        <ItemList items={products.map((item) => [item.name, item.category, `${item.price}€`])} />
+      </section>
+    </div>
+  );
+}
+
+function StaffView() {
+  return (
+    <div className="screen-grid">
+      <Metrics
+        items={[
+          ["12", "Mesas ocupadas"],
+          ["8", "Pendientes"],
+          ["5", "Preparando"],
+          ["24", "Completados"],
+        ]}
+      />
+      <section className="panel wide">
+        <PanelHeader title="Pedidos en sala" action="Nuevo pedido" />
+        <OrderList />
+      </section>
+      <section className="panel">
+        <h2>Cambiar estado</h2>
+        <div className="state-actions">
+          <button>Pendiente</button>
+          <button>Preparando</button>
+          <button className="success">Completado</button>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function PorteroView() {
+  return (
+    <div className="door-grid">
+      <section className="scanner">
+        <div className="scan-line" />
+        <QR />
+      </section>
+      <section className="panel access-result">
+        <p className="eyebrow">Resultado</p>
+        <h2>Acceso permitido</h2>
+        <dl>
+          <div>
+            <dt>Sala</dt>
+            <dd>Roja 07</dd>
+          </div>
+          <div>
+            <dt>Invitado</dt>
+            <dd>Juan Perez</dd>
+          </div>
+          <div>
+            <dt>Personas</dt>
+            <dd>6</dd>
+          </div>
+        </dl>
+        <button className="primary">Validar entrada</button>
+      </section>
+    </div>
+  );
+}
+
+function AdminView() {
+  return (
+    <div className="screen-grid">
+      <Metrics
+        items={[
+          ["48", "Usuarios"],
+          ["32", "Productos"],
+          ["156", "Pedidos hoy"],
+          ["2.450€", "Ingresos"],
+        ]}
+      />
+      <section className="panel">
+        <PanelHeader title="Usuarios" action="Crear usuario" />
+        <ItemList items={users.map((user) => [user.name, user.role, user.status])} />
+      </section>
+      <section className="panel">
+        <PanelHeader title="Productos" action="Crear producto" />
+        <ItemList items={products.map((item) => [item.name, item.category, `${item.price}€`])} />
+      </section>
+      <section className="panel wide action-panel">
+        <button>Editar usuario</button>
+        <button>Editar producto</button>
+        <button className="danger">Borrar producto</button>
+      </section>
+    </div>
+  );
+}
+
+function Metrics({ items }) {
+  return (
+    <section className="metrics">
+      {items.map(([value, label]) => (
+        <article className="metric" key={label}>
+          <strong>{value}</strong>
+          <span>{label}</span>
+        </article>
+      ))}
+    </section>
+  );
+}
+
+function PanelHeader({ title, action }) {
+  return (
+    <div className="panel-header">
+      <h2>{title}</h2>
+      <button>{action}</button>
+    </div>
+  );
+}
+
+function ItemList({ items }) {
+  return (
+    <div className="item-list">
+      {items.map(([title, meta, value]) => (
+        <article className="item-row" key={`${title}-${meta}`}>
+          <div>
+            <strong>{title}</strong>
+            <span>{meta}</span>
+          </div>
+          <b>{value}</b>
+        </article>
       ))}
     </div>
   );
 }
 
-function LoginRegister() {
-  const [selectedRole, setSelectedRole] = useState("cliente");
-
+function OrderList() {
   return (
-    <section className="auth-grid" aria-labelledby="auth-title">
-      <div className="section-title">
-        <p>Acceso</p>
-        <h1 id="auth-title">Login y registro para operar FLEX.</h1>
-      </div>
-
-      <article className="panel auth-card">
-        <Logo />
-        <h2>Iniciar sesion</h2>
-        <Field label="Correo electronico" type="email" />
-        <Field label="Contrasena" type="password" />
-        <div className="inline-row">
-          <label>
-            <input type="checkbox" /> Recordarme
-          </label>
-          <button className="link-button">Recuperar</button>
-        </div>
-        <button className="primary-button">Iniciar sesion</button>
-        <div className="oauth-row">
-          <button>Google</button>
-          <button>Apple</button>
-        </div>
-      </article>
-
-      <article className="panel auth-card">
-        <h2>Crear cuenta</h2>
-        <Field label="Nombre completo" />
-        <Field label="Correo electronico" type="email" />
-        <Field label="Telefono opcional" type="tel" />
-        <Field label="Contrasena" type="password" />
-        <Field label="Confirmar contrasena" type="password" />
-        <label className="checkline">
-          <input type="checkbox" /> Acepto terminos y condiciones
-        </label>
-        <button className="primary-button">Registrarme</button>
-      </article>
-
-      <article className="panel role-card">
-        <h2>Elige tu rol</h2>
-        <p className="muted">El selector define que panel se abre tras acceder.</p>
-        <div className="role-list">
-          {roles.map((role) => (
-            <button
-              className={selectedRole === role.id ? "role-option active" : "role-option"}
-              key={role.id}
-              onClick={() => setSelectedRole(role.id)}
-            >
-              <span>{role.label}</span>
-              <small>{role.summary}</small>
-            </button>
-          ))}
-        </div>
-      </article>
-    </section>
-  );
-}
-
-function RoleShell({ role, title, children, nav = [] }) {
-  return (
-    <article className={`dashboard ${role}`}>
-      <aside className="sidebar">
-        <Logo />
-        <nav>
-          {nav.map((item, index) => (
-            <button className={index === 0 ? "active" : ""} key={item}>
-              {item}
-            </button>
-          ))}
-        </nav>
-        <button className="logout">Cerrar sesion</button>
-      </aside>
-      <div className="workspace">
-        <div className="workspace-header">
-          <p>{role}</p>
-          <h2>{title}</h2>
-        </div>
-        {children}
-      </div>
-    </article>
-  );
-}
-
-function ClientePanel() {
-  return (
-    <RoleShell role="cliente" title="Bienvenido, Juan" nav={menuItems}>
-      <div className="action-grid">
-        <div className="feature-card food">
-          <h3>Pedir comida</h3>
-          <p>Explora productos y pide desde tu mesa.</p>
-          <button className="primary-button">Ver menu</button>
-        </div>
-        <div className="feature-card room">
-          <h3>Reservar salas</h3>
-          <p>Elige sala negra, roja o dorada.</p>
-          <button className="primary-button">Reservar</button>
-        </div>
-        <div className="ticket-card">
-          <h3>QR de entrada</h3>
-          <QrMock />
-          <Status tone="green">Entrada activa</Status>
-        </div>
-      </div>
-      <div className="list-grid">
-        <List title="Pedidos recientes" rows={products} />
-        <List title="Reservas proximas" rows={[["Sala Dorada 05", "24 Mayo 23:00", "Confirmada"]]} />
-      </div>
-    </RoleShell>
-  );
-}
-
-function StaffPanel() {
-  return (
-    <RoleShell
-      role="staff"
-      title="Panel de mesas y pedidos"
-      nav={["Panel", "Mesas", "Pedidos", "Pendientes", "Completados"]}
-    >
-      <div className="metric-grid">
-        <Metric label="Mesas ocupadas" value="12" />
-        <Metric label="Pedidos pendientes" value="8" />
-        <Metric label="En preparacion" value="5" />
-        <Metric label="Completados hoy" value="24" tone="green" />
-      </div>
-      <div className="split-grid">
-        <List title="Pedidos pendientes" rows={orders} action="Editar" />
-        <div className="panel inner-panel">
-          <h3>Estado de pedidos</h3>
-          <div className="state-list">
-            <Status>Pendiente</Status>
-            <Status>Preparando</Status>
-            <Status tone="green">Completado</Status>
+    <div className="item-list">
+      {orders.map((order) => (
+        <article className="item-row order-row" key={order.table}>
+          <div>
+            <strong>{order.table}</strong>
+            <span>{order.items}</span>
           </div>
-        </div>
-      </div>
-    </RoleShell>
-  );
-}
-
-function PorteroPanel() {
-  return (
-    <RoleShell role="portero" title="Escanear QR" nav={["Escanear QR", "Historial"]}>
-      <div className="scanner-layout">
-        <div className="scanner-frame">
-          <QrMock />
-        </div>
-        <div className="access-card">
-          <h3>Sala Roja 07</h3>
-          <p>24 Mayo 2024 - 23:00</p>
-          <p>6 personas - Juan Perez</p>
-          <Status tone="green">Acceso permitido</Status>
-        </div>
-      </div>
-    </RoleShell>
-  );
-}
-
-function AdminPanel() {
-  return (
-    <RoleShell
-      role="admin"
-      title="Panel de administracion"
-      nav={["Panel", "Usuarios", "Productos", "Reportes", "Configuracion"]}
-    >
-      <div className="metric-grid">
-        <Metric label="Usuarios" value="48" />
-        <Metric label="Productos" value="32" />
-        <Metric label="Pedidos hoy" value="156" />
-        <Metric label="Ingresos" value="2.450" />
-      </div>
-      <div className="split-grid">
-        <List title="Usuarios recientes" rows={users} action="Editar" />
-        <List title="Productos vendidos" rows={products} action="Editar" />
-      </div>
-      <div className="quick-actions">
-        <button>Crear usuario</button>
-        <button>Crear producto</button>
-        <button>Editar producto</button>
-        <button>Borrar producto</button>
-      </div>
-    </RoleShell>
-  );
-}
-
-function Metric({ label, value, tone = "gold" }) {
-  return (
-    <div className={`metric ${tone}`}>
-      <strong>{value}</strong>
-      <span>{label}</span>
-    </div>
-  );
-}
-
-function List({ title, rows, action }) {
-  return (
-    <div className="panel inner-panel">
-      <div className="list-title">
-        <h3>{title}</h3>
-        <button className="link-button">Ver todos</button>
-      </div>
-      <div className="rows">
-        {rows.map((row) => (
-          <div className="row" key={row.join("-")}>
-            <div>
-              <strong>{row[0]}</strong>
-              <span>{row.slice(1, -1).join(" - ")}</span>
-            </div>
-            <div className="row-end">
-              <span>{row.at(-1)}</span>
-              {action ? <button>{action}</button> : null}
-            </div>
-          </div>
-        ))}
-      </div>
+          <span className={`badge ${order.state === "Completado" ? "success" : ""}`}>
+            {order.state}
+          </span>
+          <b>{order.total}€</b>
+        </article>
+      ))}
     </div>
   );
 }
 
 export default function Home() {
+  const [selectedRole, setSelectedRole] = useState("cliente");
+  const [authenticated, setAuthenticated] = useState(false);
+
+  if (!authenticated) {
+    return (
+      <AuthScreen
+        selectedRole={selectedRole}
+        setAuthenticated={setAuthenticated}
+        setSelectedRole={setSelectedRole}
+      />
+    );
+  }
+
   return (
-    <main className="app-shell">
-      <header className="topbar">
-        <Logo />
-        <div>
-          <p>Tres salas. Tres experiencias.</p>
-          <span>Interfaz base para login, registro y roles operativos.</span>
-        </div>
-      </header>
-      <LoginRegister />
-      <section className="dashboards" aria-label="Paneles por rol">
-        <ClientePanel />
-        <StaffPanel />
-        <PorteroPanel />
-        <AdminPanel />
-      </section>
-    </main>
+    <AppShell
+      selectedRole={selectedRole}
+      setAuthenticated={setAuthenticated}
+      setSelectedRole={setSelectedRole}
+    />
   );
 }
