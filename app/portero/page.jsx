@@ -3,9 +3,9 @@
 import { AppFrame, DataList, Panel, QRBlock, StatGrid } from "../_components/FlexUi";
 
 const accessRows = [
-  ["Maria Gonzalez", "Sala Roja privada", "23:47", "Valido"],
-  ["Juan Perez", "Entrada general", "23:45", "Valido"],
-  ["Andres Lopez", "Sala Roja privada", "23:40", "Denegado"],
+  ["María González", "Sala Roja privada", "23:47", "Válido"],
+  ["Juan Pérez", "Entrada general", "23:45", "Válido"],
+  ["Andrés López", "Sala Roja privada", "23:40", "Denegado"],
 ];
 
 export default function PorteroPage() {
@@ -23,11 +23,11 @@ export default function PorteroPage() {
           </div>
         </section>
 
-        <Panel title="Ultimo acceso">
+        <Panel title="Último acceso">
           <div className="access-valid">
-            <span>Acceso valido</span>
+            <span>Acceso válido</span>
             <strong>Sala Roja 07</strong>
-            <p>Juan Perez · 6 personas · 23:47</p>
+            <p>Juan Pérez · 6 personas · 23:47</p>
           </div>
         </Panel>
 

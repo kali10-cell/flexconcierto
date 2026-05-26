@@ -5,9 +5,11 @@ import {
   DataList,
   HeroMedia,
   Panel,
+  ProductMenu,
   QRBlock,
+  RoomShowcase,
+  photos,
   products,
-  rooms,
 } from "../_components/FlexUi";
 
 export default function ClientePage() {
@@ -17,9 +19,18 @@ export default function ClientePage() {
       subtitle="Pide comida, reserva salas y muestra tu QR de acceso."
       title="Bienvenido, Juan"
     >
+      <section className="mobile-client-top">
+        <div>
+          <span>Reserva activa</span>
+          <strong>Sala Dorada 05</strong>
+          <p>23:00 · 6 invitados · QR listo</p>
+        </div>
+        <button>Ver QR</button>
+      </section>
+
       <div className="client-layout">
-        <HeroMedia eyebrow="Proxima reserva" title="Sala Dorada 05">
-          <p>Tu mesa VIP esta confirmada para las 23:00. Puedes pedir antes de llegar.</p>
+        <HeroMedia alt="Escenario con luces para la próxima reserva" eyebrow="Próxima reserva" image={photos.stage} title="Sala Dorada 05">
+          <p>Tu mesa VIP está confirmada para las 23:00. Puedes pedir antes de llegar.</p>
           <button className="primary-button">Pedir comida</button>
         </HeroMedia>
 
@@ -27,20 +38,12 @@ export default function ClientePage() {
           <QRBlock />
         </Panel>
 
-        <Panel action="Ver menu" id="comida" title="Pedir comida">
-          <DataList rows={products} />
+        <Panel action="Ver menú" id="comida" title="Pedir comida">
+          <ProductMenu items={products} />
         </Panel>
 
-        <Panel action="Reservar sala" id="salas" title="Reservar salas">
-          <div className="room-grid">
-            {rooms.map((room) => (
-              <article className={`room-card ${room.tone}`} key={room.name}>
-                <span>{room.detail}</span>
-                <strong>{room.name}</strong>
-                <b>Desde {room.price}€</b>
-              </article>
-            ))}
-          </div>
+        <Panel action="Reservar sala" className="wide-panel rooms-panel" id="salas" title="Reservar salas">
+          <RoomShowcase compact />
         </Panel>
       </div>
     </AppFrame>

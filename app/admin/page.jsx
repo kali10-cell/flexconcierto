@@ -1,13 +1,13 @@
 "use client";
 
-import { AppFrame, DataList, Panel, StatGrid, products, users } from "../_components/FlexUi";
+import { AppFrame, DataList, Panel, StatGrid, productRows, users } from "../_components/FlexUi";
 
 export default function AdminPage() {
   return (
     <AppFrame
       role="admin"
-      subtitle="Gestiona usuarios, productos, ventas y configuracion del club."
-      title="Administracion"
+      subtitle="Gestiona usuarios, productos, ventas y configuración del club."
+      title="Administración"
     >
       <div className="admin-layout">
         <StatGrid
@@ -24,10 +24,10 @@ export default function AdminPage() {
         </Panel>
 
         <Panel action="Crear producto" id="productos" title="Productos">
-          <DataList action="Editar" rows={products} />
+          <DataList action="Editar" rows={productRows} />
         </Panel>
 
-        <Panel className="wide-panel" id="reportes" title="Acciones rapidas">
+        <Panel className="wide-panel" id="reportes" title="Acciones rápidas">
           <div className="admin-actions">
             <button>Crear usuario</button>
             <button>Editar usuario</button>

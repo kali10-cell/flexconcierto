@@ -6,7 +6,7 @@ export default function StaffPage() {
   return (
     <AppFrame
       role="staff"
-      subtitle="Controla mesas, pedidos pendientes y estados de preparacion."
+      subtitle="Controla mesas, pedidos pendientes y estados de preparación."
       title="Panel de sala"
     >
       <div className="staff-layout">
@@ -14,7 +14,7 @@ export default function StaffPage() {
           stats={[
             ["12", "Mesas ocupadas"],
             ["8", "Pedidos pendientes", "warning"],
-            ["5", "En preparacion"],
+            ["5", "En preparación"],
             ["24", "Completados hoy", "success"],
           ]}
         />
@@ -33,7 +33,7 @@ export default function StaffPage() {
           </div>
         </Panel>
 
-        <Panel id="actividad" title="Estado rapido">
+        <Panel id="actividad" title="Estado rápido">
           <div className="state-buttons">
             <button>Pendiente</button>
             <button>Preparando</button>
