@@ -1,8 +1,16 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 import { crearCheckout } from '@/lib/pagos'
+
+function createSupabaseAdmin() {
+  return createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY
+  )
+}
 
 export async function avanzarPedido(id, estadoActual) {
   const SIGUIENTE = { pendiente: 'en_barra', en_barra: 'listo', listo: 'entregado' }
@@ -58,10 +66,20 @@ export async function iniciarPagoPedido({ mesaId, items }) {
 
   const pedido = await crearPedido({ mesaId, items })
 
-  return crearCheckout({
-    tipo: 'pedido',
-    id: pedido.id,
-    items: items.map((i) => ({ nombre: i.nombre, precio: i.precio, cantidad: i.cantidad })),
-    user,
-  })
+  try {
+    return await crearCheckout({
+      tipo: 'pedido',
+      id: pedido.id,
+      items: items.map((i) => ({ nombre: i.nombre, precio: i.precio, cantidad: i.cantidad })),
+      user,
+    })
+  } catch (err) {
+    await createSupabaseAdmin()
+      .from('pedidos')
+      .update({ estado_pago: 'cancelado' })
+      .eq('id', pedido.id)
+      .is('stripe_session', null)
+
+    throw err
+  }
 }

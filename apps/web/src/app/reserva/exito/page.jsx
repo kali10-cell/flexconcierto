@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { confirmarPagoDesdeStripe } from '@/lib/stripe-sync'
 import Link from 'next/link'
 
 export default async function PaginaExitoReserva({ searchParams }) {
@@ -11,7 +12,12 @@ export default async function PaginaExitoReserva({ searchParams }) {
     .eq('id', reservaId)
     .single()
 
-  if (!reserva || reserva.estado_pago !== 'pagado') {
+  const reservaConfirmada =
+    reserva?.estado_pago === 'pagado'
+      ? reserva
+      : await confirmarPagoDesdeStripe({ tipo: 'reserva', id: reservaId })
+
+  if (!reservaConfirmada || reservaConfirmada.estado_pago !== 'pagado') {
     return (
       <div className="p-8 text-center text-zinc-400">
         <p>Reserva no encontrada o pago aún no confirmado.</p>

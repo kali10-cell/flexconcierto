@@ -26,6 +26,7 @@ export default function PaginaRegister() {
 
     setCargando(true)
     const formData = new FormData(e.target)
+    //server action
     const result = await register(formData)
     setCargando(false)
     if (result?.error) setError(result.error)

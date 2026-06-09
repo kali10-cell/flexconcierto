@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { confirmarPagoDesdeStripe } from '@/lib/stripe-sync'
 import Link from 'next/link'
 
 export default async function PaginaExitoPedido({ searchParams }) {
@@ -11,7 +12,12 @@ export default async function PaginaExitoPedido({ searchParams }) {
     .eq('id', pedidoId)
     .single()
 
-  if (!pedido || pedido.estado_pago !== 'pagado') {
+  const pedidoConfirmado =
+    pedido?.estado_pago === 'pagado'
+      ? pedido
+      : await confirmarPagoDesdeStripe({ tipo: 'pedido', id: pedidoId })
+
+  if (!pedidoConfirmado || pedidoConfirmado.estado_pago !== 'pagado') {
     return (
       <div className="p-8 text-center text-zinc-400">
         <p>Pedido no encontrado o pago aún no confirmado.</p>
