@@ -68,6 +68,20 @@ Con Service Worker:
 
 Configurar un Service Worker a mano es complejo. La librería `next-pwa` lo genera automáticamente a partir de tu configuración. Tú le dices qué rutas cachear y ella se encarga del resto.
 
+**¿Cuándo crea el archivo `sw.js`?**
+
+`next-pwa` no genera el Service Worker hasta que haces un build de producción. El ciclo es:
+
+1. **Durante desarrollo** (`next dev`) — el Service Worker está desactivado (`disable: process.env.NODE_ENV === 'development'`). No existe ningún archivo `sw.js`. Esto es intencionado: el caché no debe interferir mientras desarrollas.
+
+2. **Al hacer `next build`** — `next-pwa` genera automáticamente estos archivos en tu carpeta `public/`:
+   - `sw.js` — el Service Worker real
+   - `workbox-xxxxxxxx.js` — la librería de caché que usa internamente
+
+3. **En producción** (`next start` o un despliegue) — el navegador descarga e instala `sw.js`, y desde ahí gestiona el caché y la experiencia offline.
+
+El Service Worker no existe como archivo en el repositorio porque se genera en tiempo de build. Para verlo localmente, ejecuta `next build` y aparecerá en `public/sw.js`.
+
 ---
 
 ## El ciclo de vida del Service Worker
